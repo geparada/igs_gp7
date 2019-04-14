@@ -25,6 +25,10 @@ def percent (c, total):
 
 def PWM_to_dict(file):
 	reader = csv.DictReader(file, delimiter = '\t')
+	
+	
+	
+	
 # 	header = next(reader)
 # 	header_dict = {}
 # 	col = 0
@@ -48,19 +52,19 @@ def PWM_to_dict(file):
 # 		G = row[header_dict["G"]]
 # 		T = row[header_dict["T"]]
 			
-		A_frec.append(float(row["A"]))
-		C_frec.append(float(row["C"]))
-		G_frec.append(float(row["G"]))
-		T_frec.append(float(row["T"]))
-		N_freq.append(0)
+# 		A_frec.append(float(row["A"]))
+# 		C_frec.append(float(row["C"]))
+# 		G_frec.append(float(row["G"]))
+# 		T_frec.append(float(row["T"]))
+# 		N_freq.append(0)
 			
-	matrix["A"] = A_frec
-	matrix["C"] = C_frec
-	matrix["G"] = G_frec
-	matrix["T"] = T_frec
-	matrix["N"] = N_freq
+# 	matrix["A"] = A_frec
+# 	matrix["C"] = C_frec
+# 	matrix["G"] = G_frec
+# 	matrix["T"] = T_frec
+# 	matrix["N"] = N_freq
 	
-	return matrix
+# 	return matrix
 
 
 def U2Score(ME_chr, ME_strand, ME_start, ME_end, U2_GTAG_3, U2_GTAG_5,  max_U2_score_3, max_U2_score_5):
