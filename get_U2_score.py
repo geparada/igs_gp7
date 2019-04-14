@@ -25,21 +25,7 @@ def percent (c, total):
 
 def PWM_to_dict(file):
 	
-	
 	reader = csv.DictReader(open(file), delimiter = '\t')
-	
-	
-	
-	
-# 	header = next(reader)
-# 	header_dict = {}
-# 	col = 0
-	
-# 	matrix = {}
-	
-# 	for name in header:
-# 		header_dict[name] = col
-# 		col += 1
 	
 	A_frec = []
 	C_frec = []
@@ -48,11 +34,6 @@ def PWM_to_dict(file):
 	N_freq = []
 	
 	for row in reader:
-		print(row)
-# 		A = row[header_dict["A"]]
-# 		C = row[header_dict["C"]]
-# 		G = row[header_dict["G"]]
-# 		T = row[header_dict["T"]]
 			
 		A_frec.append(float(row["A"]))
 		C_frec.append(float(row["C"]))
@@ -60,13 +41,13 @@ def PWM_to_dict(file):
 		T_frec.append(float(row["T"]))
 		N_freq.append(0)
 			
-# 	matrix["A"] = A_frec
-# 	matrix["C"] = C_frec
-# 	matrix["G"] = G_frec
-# 	matrix["T"] = T_frec
-# 	matrix["N"] = N_freq
+	matrix["A"] = A_frec
+	matrix["C"] = C_frec
+	matrix["G"] = G_frec
+	matrix["T"] = T_frec
+	matrix["N"] = N_freq
 	
-# 	return matrix
+	return matrix
 
 
 def U2Score(ME_chr, ME_strand, ME_start, ME_end, U2_GTAG_3, U2_GTAG_5,  max_U2_score_3, max_U2_score_5):
@@ -141,7 +122,7 @@ def main(exon_bed, U2_GTAG_5_file, U2_GTAG_3_file):
 	
   
 if __name__ == '__main__':
-	#Genomictabulator(sys.argv[1])
+	Genomictabulator(sys.argv[1])
 	main(sys.argv[2], sys.argv[3], sys.argv[4])
   
   
