@@ -110,7 +110,7 @@ def main(exon_bed, GT_AG_U2_5, GT_AG_U2_3):
 		
 		chrom, start, end, name, cero, strand = row
 		
-		estart, eend = map(int, name.split("_"))
+		estart, eend = map(int, name.split("_")[-2:])
 		
 		U2_E5, U2_E3 = U2Score(chrom, strand, estart, eend, U2_GTAG_3, U2_GTAG_5, U2_GTAG_3_max_score, U2_GTAG_5_max_score)
 
