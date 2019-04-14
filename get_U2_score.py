@@ -42,6 +42,7 @@ def PWM_to_dict(file):
 	N_freq = []
 	
 	for row in reader:
+		print(row)
 # 		A = row[header_dict["A"]]
 # 		C = row[header_dict["C"]]
 # 		G = row[header_dict["G"]]
