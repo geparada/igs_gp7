@@ -29,7 +29,7 @@ def PWM_to_dict(file):
 	header_dict = {}
 	col = 0
 	
-	matrix = dict()
+	matrix = {}
 	
 	for name in header:
 		header_dict[name] = col
@@ -126,7 +126,7 @@ def main(exon_bed, U2_GTAG_5_file, U2_GTAG_3_file):
 		
 		U2_E5, U2_E3 = U2Score(chrom, strand, estart, eend, U2_GTAG_3, U2_GTAG_5, U2_GTAG_3_max_score, U2_GTAG_5_max_score)
 
-		print(name, U2_E5, U2_E3)
+		print name, U2_E5, U2_E3
 
 	
 	
