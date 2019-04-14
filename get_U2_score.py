@@ -24,7 +24,9 @@ def percent (c, total):
 		return 0	
 
 def PWM_to_dict(file):
-	reader = csv.DictReader(file, delimiter = '\t')
+	
+	
+	reader = csv.DictReader(open(file), delimiter = '\t')
 	
 	
 	
@@ -52,11 +54,11 @@ def PWM_to_dict(file):
 # 		G = row[header_dict["G"]]
 # 		T = row[header_dict["T"]]
 			
-# 		A_frec.append(float(row["A"]))
-# 		C_frec.append(float(row["C"]))
-# 		G_frec.append(float(row["G"]))
-# 		T_frec.append(float(row["T"]))
-# 		N_freq.append(0)
+		A_frec.append(float(row["A"]))
+		C_frec.append(float(row["C"]))
+		G_frec.append(float(row["G"]))
+		T_frec.append(float(row["T"]))
+		N_freq.append(0)
 			
 # 	matrix["A"] = A_frec
 # 	matrix["C"] = C_frec
