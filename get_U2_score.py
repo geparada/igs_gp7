@@ -99,6 +99,8 @@ def U2Score(ME_chr, ME_strand, ME_start, ME_end, U2_GTAG_3, U2_GTAG_5,  max_U2_s
   
 def main(exon_bed, U2_GTAG_5_file, U2_GTAG_3_file):
 	
+	print U2_GTAG_5_file
+	
 	U2_GTAG_5 = PWM_to_dict(U2_GTAG_5_file)
 	U2_GTAG_3 = PWM_to_dict(U2_GTAG_3_file)	
 	
