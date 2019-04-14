@@ -33,6 +33,8 @@ def PWM_to_dict(file):
 	T_frec = []
 	N_freq = []
 	
+	matrix = {}
+	
 	for row in reader:
 			
 		A_frec.append(float(row["A"]))
