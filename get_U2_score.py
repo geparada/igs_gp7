@@ -29,7 +29,7 @@ def PWM_to_dict(file):
 	header_dict = {}
 	col = 0
 	
-	matrix = {}
+	matrix = dict()
 	
 	for name in header:
 		header_dict[name] = col
