@@ -131,7 +131,7 @@ def main(exon_bed, U2_GTAG_5, U2_GTAG_3, GT_AG_U2_5, GT_AG_U2_3):
 	
 	
   
-  if __name__ == '__main__':
+if __name__ == '__main__':
 	Genomictabulator(sys.argv[1])
 	main(sys.argv[2], sys.argv[3], sys.argv[4])
   
