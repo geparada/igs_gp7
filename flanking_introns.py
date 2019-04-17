@@ -48,6 +48,8 @@ def main(bed12, VASTDB_PSI):
 			eend = int(eend)
 			
 			exon = (chrom , estart, eend)
+			
+			print(exon)
 
 			if exon in exon_introns:
 				intron_up, intron_down = exon_introns[exon]
