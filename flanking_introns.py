@@ -54,7 +54,7 @@ def main(bed12, VASTDB_PSI):
 				intron_up_len = intron_up[-1] - intron_up[-2]
 				intron_down_len = intron_down[-1] - intron_down[-2]
 
-				print( row, intron_up, intron_down, str(intron_up_len), str(intron_down_len), sep="\t" )
+				print( "\t".join(row), "_".intron_up, str(intron_up_len), "_".intron_down, str(intron_down_len), sep="\t" )
 		
 		except ValueError:
 			pass
