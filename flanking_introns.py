@@ -41,6 +41,9 @@ def main(bed12, VASTDB_PSI):
 		exon_coords = row[1]
 		chrom = exon_coords.split(":")[0]
 		estart, eend =  exon_coords.split(":")[1].split("-")
+		
+		print(exon_coords)
+		
 		estart = int(estart)
 		eend = int(eend)
 		
@@ -49,7 +52,7 @@ def main(bed12, VASTDB_PSI):
 			intron_up_len = intron_up[-1] - intron_up[-2]
 			intron_down_len = intron_down[-1] - intron_down[-2]
 			
-			print( row, str(intron_up_len), str(intron_down_len), sep="\t" )
+			print( row, intron_up, intron_down, str(intron_up_len), str(intron_down_len), sep="\t" )
 		
 
 if __name__ == '__main__':
