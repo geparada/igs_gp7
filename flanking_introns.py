@@ -35,7 +35,6 @@ def main(bed12, VASTDB_PSI):
 			intron_down = (chrom,  istart_down, iend_down)
 			
 			exon_introns[exon] = (intron_up, intron_down)
-			print(exon)
 			
 	for row in csv.reader(open(VASTDB_PSI), delimiter = '\t'):
 		
@@ -48,9 +47,7 @@ def main(bed12, VASTDB_PSI):
 			estart = int(estart)
 			eend = int(eend)
 			
-			exon = (chrom , estart, eend)
-			
-			#print(exon)
+			exon = (chrom , estart-1, eend)
 
 			if exon in exon_introns:
 				intron_up, intron_down = exon_introns[exon]
