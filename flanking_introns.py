@@ -30,9 +30,9 @@ def main(bed12, VASTDB_PSI):
 			istart_down = start + q2 + b2
 			iend_down = start + q3
 			
-			exon = (chrom, strand, estart, eend)
-			intron_up = (chrom, strand, istart_up, iend_up)
-			intron_down = (chrom, strand, istart_down, iend_down)
+			exon = (chrom , estart, eend)
+			intron_up = (chrom,  istart_up, iend_up)
+			intron_down = (chrom,  istart_down, iend_down)
 			
 			exon_introns[exon] = (intron_up, intron_down)
 			
@@ -42,17 +42,22 @@ def main(bed12, VASTDB_PSI):
 		chrom = exon_coords.split(":")[0]
 		estart, eend =  exon_coords.split(":")[1].split("-")
 		
-		print(exon_coords)
+		try:
 		
-		estart = int(estart)
-		eend = int(eend)
-		
-		if exon in exon_introns:
-			intron_up, intron_down = exon_introns[exon]
-			intron_up_len = intron_up[-1] - intron_up[-2]
-			intron_down_len = intron_down[-1] - intron_down[-2]
+			estart = int(estart)
+			eend = int(eend)
 			
-			print( row, intron_up, intron_down, str(intron_up_len), str(intron_down_len), sep="\t" )
+			exon = (chrom , estart, eend)
+
+			if exon in exon_introns:
+				intron_up, intron_down = exon_introns[exon]
+				intron_up_len = intron_up[-1] - intron_up[-2]
+				intron_down_len = intron_down[-1] - intron_down[-2]
+
+				print( row, intron_up, intron_down, str(intron_up_len), str(intron_down_len), sep="\t" )
+		
+		except ValueError:
+			pass
 		
 
 if __name__ == '__main__':
