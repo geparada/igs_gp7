@@ -31,8 +31,8 @@ def main(bed12, VASTDB_PSI):
 			iend_down = start + q3
 			
 			exon = (chrom, strand, estart, eend)
-			intron_up = (chrom, starnd, istart_up, iend_up)
-			intron_down = (chrom, starnd, istart_down, iend_down)
+			intron_up = (chrom, strand, istart_up, iend_up)
+			intron_down = (chrom, strand, istart_down, iend_down)
 			
 			exon_introns[exon] = (intron_up, intron_down)
 			
@@ -53,4 +53,4 @@ def main(bed12, VASTDB_PSI):
 		
 
 if __name__ == '__main__':
-	main (sys.argv[1], int(sys.argv[2])
+	main (sys.argv[1], sys.argv[2])
