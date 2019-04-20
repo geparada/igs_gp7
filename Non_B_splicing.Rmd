@@ -1,0 +1,1970 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(readr)
+VASTDB_PSI_Hsa108_hg19 <- read_delim("~/Google_Drive/Results/Non_B/VASTDB_PSI_Hsa108_hg19.tab", 
+    "\t", escape_double = FALSE, trim_ws = TRUE)
+
+```
+
+```{r}
+View(VASTDB_PSI_Hsa108_hg19)
+```
+
+
+```{r}
+library(readr)
+library(data.table)
+library(ggplot2)
+library(plyr)
+
+read_dist_table <- function(path){
+  
+dist_table <- data.table(read_delim(path, 
+    "\t", escape_double = FALSE, col_names = FALSE, 
+    trim_ws = TRUE))
+
+dist_table <- dist_table[, 2:2001]
+dist_table <- data.table(as.data.frame(t(dist_table)))
+colnames(dist_table) <- c("Position", "Occurrences")
+
+dist_table[,median:=median(Occurrences)]
+dist_table[, Enrrichment:=Occurrences/median]
+dist_table[, Position:=Position-1]
+
+return(dist_table)  
+}
+
+
+```
+
+
+
+
+```{r}
+
+plot_density <- function(up_plus, up_minus, down_plus, down_minus){
+
+  
+  up_TOTAL <-  merge(up_plus, up_minus, by="Position")
+  up_TOTAL[,Occurrences:=Occurrences.x+Occurrences.y]
+  up_TOTAL[,median:=median(Occurrences)]
+  up_TOTAL[, Enrrichment:=Occurrences/median]
+  up_TOTAL[, Position:=Position-1]
+  
+  
+  down_TOTAL <-  merge(down_plus, down_minus, by="Position")
+  down_TOTAL[,Occurrences:=Occurrences.x+Occurrences.y]
+  down_TOTAL[,median:=median(Occurrences)]
+  down_TOTAL[, Enrrichment:=Occurrences/median]
+  down_TOTAL[, Position:=Position-1]
+  
+  up_TOTAL[ ,exon_pos:="Upstream"]
+  down_TOTAL[ ,exon_pos:="Downstream"]
+  
+  TOTAL <- rbind(up_TOTAL, down_TOTAL)
+  
+  TOTAL$exon_pos <-  factor(TOTAL$exon_pos, levels=c("Upstream", "Downstream" )) 
+  
+  p <- ggplot(TOTAL)+
+    geom_line(aes(x=Position,y=Enrrichment)) +
+    facet_grid( . ~ exon_pos ) +
+    theme_bw()
+  
+  show(p)
+  
+  TOTAL
+  
+  
+
+}
+```
+
+
+
+
+```{r}
+
+G4.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4.exon.up_plus.list.out.num")
+G4.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4.exon.down_plus.list.out.num")
+G4.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4.exon.up_minus.list.out.num")
+G4.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4.exon.down_minus.list.out.num")
+G4.up_minus[,Position:=Position*-1]
+G4.down_minus[,Position:=Position*-1]
+
+G4.TOTAL <- plot_density(G4.up_plus, G4.up_minus, G4.down_plus, G4.down_minus)
+
+```
+
+
+
+
+```{r}
+
+DR.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/DR.exon.up_plus.list.out.num")
+DR.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/DR.exon.down_plus.list.out.num")
+DR.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/DR.exon.up_minus.list.out.num")
+DR.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/DR.exon.down_minus.list.out.num")
+DR.up_minus[,Position:=Position*-1]
+DR.down_minus[,Position:=Position*-1]
+
+
+DR.TOTAL <- plot_density(DR.up_plus, DR.up_minus, DR.down_plus, DR.down_minus)
+
+```
+
+
+
+
+```{r}
+
+H_DNA.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/H_DNA.exon.down_minus.list.out.num")
+H_DNA.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/H_DNA.exon.down_plus.list.out.num")
+H_DNA.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/H_DNA.exon.up_minus.list.out.num")
+H_DNA.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/H_DNA.exon.down_minus.list.out.num")
+H_DNA.up_minus[,Position:=Position*-1]
+H_DNA.down_minus[,Position:=Position*-1]
+
+
+H_DNA.TOTAL <- plot_density(H_DNA.up_plus, H_DNA.up_minus, H_DNA.down_plus, H_DNA.down_minus)
+
+```
+
+
+
+
+```{r}
+
+IR.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/IR.exon.down_minus.list.out.num")
+IR.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/IR.exon.down_plus.list.out.num")
+IR.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/IR.exon.up_minus.list.out.num")
+IR.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/IR.exon.down_minus.list.out.num")
+IR.up_minus[,Position:=Position*-1]
+IR.down_minus[,Position:=Position*-1]
+
+
+IR.TOTAL <- plot_density(IR.up_plus, IR.up_minus, IR.down_plus, IR.down_minus)
+
+```
+
+
+
+
+```{r}
+
+MR.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/MR.exon.down_minus.list.out.num")
+MR.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/MR.exon.down_plus.list.out.num")
+MR.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/MR.exon.up_minus.list.out.num")
+MR.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/MR.exon.down_minus.list.out.num")
+MR.up_minus[,Position:=Position*-1]
+MR.down_minus[,Position:=Position*-1]
+
+
+MR.TOTAL <- plot_density(MR.up_plus, MR.up_minus, MR.down_plus, MR.down_minus)
+
+```
+
+
+
+
+```{r}
+
+STR.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/STR.exon.down_minus.list.out.num")
+STR.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/STR.exon.down_plus.list.out.num")
+STR.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/STR.exon.up_minus.list.out.num")
+STR.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/STR.exon.down_minus.list.out.num")
+STR.up_minus[,Position:=Position*-1]
+STR.down_minus[,Position:=Position*-1]
+
+
+STR.TOTAL <- plot_density(STR.up_plus, STR.up_minus, STR.down_plus, STR.down_minus)
+
+```
+
+
+
+
+
+
+```{r}
+
+Z_DNA.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/Z_DNA.exon.down_minus.list.out.num")
+Z_DNA.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/Z_DNA.exon.down_plus.list.out.num")
+Z_DNA.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/Z_DNA.exon.up_minus.list.out.num")
+Z_DNA.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/Z_DNA.exon.down_minus.list.out.num")
+Z_DNA.up_minus[,Position:=Position*-1]
+Z_DNA.down_minus[,Position:=Position*-1]
+
+
+Z_DNA.TOTAL <- plot_density(Z_DNA.up_plus, Z_DNA.up_minus, Z_DNA.down_plus, Z_DNA.down_minus)
+
+```
+
+
+
+
+```{r, fig.height=7, fig.width=5}
+G4.TOTAL[, Non_B:="G4"]
+DR.TOTAL[, Non_B:="DR"]
+H_DNA.TOTAL[, Non_B:="H DNA"]
+IR.TOTAL[, Non_B:="IR"]
+MR.TOTAL[, Non_B:="MR"]
+STR.TOTAL[, Non_B:="STR"]
+Z_DNA.TOTAL[, Non_B:="Z DNA"]
+
+Non_B.TOTAL <- rbind(G4.TOTAL, DR.TOTAL, H_DNA.TOTAL, IR.TOTAL, MR.TOTAL, STR.TOTAL, Z_DNA.TOTAL)
+
+ggplot(Non_B.TOTAL)+
+    geom_line(aes(x=Position,y=Enrrichment)) +
+    xlim(c(-300,300)) +
+    facet_grid( Non_B ~ exon_pos ) +
+  theme_bw()
+
+```
+
+
+
+```{r}
+
+Non_B.TOTAL.Enrrichment_Peak <- Non_B.TOTAL[ , .(Enrrichment_Peak=max(Enrrichment)) , by = c("Non_B", "exon_pos" )]
+
+
+
+write.table(Non_B.TOTAL.Enrrichment_Peak, file = "Non_B.TOTAL.Enrrichment_Peak.txt", append = FALSE, quote = FALSE, sep = "\t",
+            eol = "\n", na = "NA", dec = ".", row.names = FALSE,
+            col.names = TRUE, qmethod = c("escape", "double"),
+            fileEncoding = "")
+
+```
+
+
+# Defining functions
+
+
+```{r}
+
+Merge_Qs <- function(Qs.list, window_len, strand ) {
+  
+  Total_Qs <- data.table(rbindlist(Qs.list))
+  Q_names <- seq(nrow(Total_Qs)/window_len)
+  Total_Qs[, Q:=rep(Q_names, each=window_len)]
+  
+  if(strand=="-"){
+    
+    Total_Qs[,Position:=Position*-1]
+  }
+  
+  Total_Qs
+}
+
+
+```
+
+
+```{r}
+merge_plus_minus <- function(plus, minus){
+
+  TOTAL <- merge(plus, minus, by=c("Position", "Q") )
+  TOTAL[,Occurrences:=Occurrences.x+Occurrences.y]
+  TOTAL[,median:=median(Occurrences),  by=c("Q")]
+  TOTAL[, Enrrichment:=Occurrences/median]
+  TOTAL[, Position:=Position-1]
+  
+}
+```
+
+
+```{r}
+Merge_up_down <- function(Qs.up, Qs.down){
+
+  Qs.total <- rbind(Qs.up, Qs.down)
+  
+  half_n <- nrow(Qs.total)/2
+  Qs.total[, exon_pos:=rep(c("Upstream", "Downstream"), each=half_n) ]
+  
+  
+  Qs.total$exon_pos <-  factor(Qs.total$exon_pos, levels=c("Upstream", "Downstream" ))
+  Qs.total$Q <-  factor(Qs.total$Q)
+  
+  Qs.total
+  
+}
+```
+
+
+
+```{r}
+
+
+get_total_Qs <- function(Qs.plus.up.list, Qs.minus.list, Qs.plus.down.list, Qs.minus.down.list, window_len){
+
+  Qs.plus.up <- Merge_Qs(Qs.plus.up.list, window_len, strand="+")
+  Qs.minus.up <- Merge_Qs(Qs.minus.list, window_len, strand="-")
+  Qs.up <- merge_plus_minus(Qs.plus.up, Qs.minus.up)
+  
+  Qs.plus.down <- Merge_Qs(Qs.plus.down.list, window_len, strand="+")
+  Qs.minus.down<- Merge_Qs(Qs.minus.down.list, window_len, strand="-")
+  Qs.down <- merge_plus_minus(Qs.plus.down, Qs.minus.down)
+  
+  Qs.total <- Merge_up_down(Qs.up, Qs.down)
+  
+  Qs.total
+  
+}
+  
+```
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+
+G4.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q1.bed.G4.list.out.num")
+G4.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q2.bed.G4.list.out.num")
+G4.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q3.bed.G4.list.out.num")
+G4.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q4.bed.G4.list.out.num")
+
+G4.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q1.bed.G4.list.out.num")
+G4.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q2.bed.G4.list.out.num")
+G4.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q3.bed.G4.list.out.num")
+G4.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q4.bed.G4.list.out.num")
+
+G4.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q1.bed.G4.list.out.num")
+G4.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q2.bed.G4.list.out.num")
+G4.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q3.bed.G4.list.out.num")
+G4.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q4.bed.G4.list.out.num")
+
+G4.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q1.bed.G4.list.out.num")
+G4.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q2.bed.G4.list.out.num")
+G4.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q3.bed.G4.list.out.num")
+G4.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q4.bed.G4.list.out.num")
+
+G4.Qs.plus.up.list <- list(G4.Q1_up_plus, G4.Q2_up_plus, G4.Q3_up_plus, G4.Q4_up_plus)
+G4.Qs.minus.list <- list(G4.Q1_up_minus, G4.Q2_up_minus, G4.Q3_up_minus, G4.Q4_up_minus)
+G4.Qs.plus.down.list <- list(G4.Q1_down_plus, G4.Q2_down_plus, G4.Q3_down_plus, G4.Q4_down_plus)
+G4.Qs.minus.down.list <- list(G4.Q1_down_minus, G4.Q2_down_minus, G4.Q3_down_minus, G4.Q4_down_minus)
+G4.window_len = 2000
+
+G4.Qs.total <- get_total_Qs(G4.Qs.plus.up.list, G4.Qs.minus.list, G4.Qs.plus.down.list, G4.Qs.minus.down.list, G4.window_len)
+
+G4.Qs.total$Q <- mapvalues(G4.Qs.total$Q,  from =c(1:4), to =c("Q1", "Q2", "Q3", "Q4"))
+
+ggplot(G4.Qs.total)+
+  geom_line(aes(x=Position,y=Enrrichment, colour=Q)) +
+  xlim(c(-100,100)) +
+  facet_grid( . ~ exon_pos ) +
+  theme(text = element_text(size=15)) +
+  theme_bw()+labs(colour = "Splice site stregth quartile")
+
+```
+
+
+
+
+
+
+
+```{r}
+
+
+DR.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q1.bed.DRs.list.out.num")
+DR.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q2.bed.DRs.list.out.num")
+DR.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q3.bed.DRs.list.out.num")
+DR.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q4.bed.DRs.list.out.num")
+
+DR.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q1.bed.DRs.list.out.num")
+DR.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q2.bed.DRs.list.out.num")
+DR.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q3.bed.DRs.list.out.num")
+DR.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q4.bed.DRs.list.out.num")
+
+DR.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q1.bed.DRs.list.out.num")
+DR.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q2.bed.DRs.list.out.num")
+DR.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q3.bed.DRs.list.out.num")
+DR.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q4.bed.DRs.list.out.num")
+
+DR.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q1.bed.DRs.list.out.num")
+DR.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q2.bed.DRs.list.out.num")
+DR.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q3.bed.DRs.list.out.num")
+DR.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q4.bed.DRs.list.out.num")
+
+DR.Qs.plus.up.list <- list(DR.Q1_up_plus, DR.Q2_up_plus, DR.Q3_up_plus, DR.Q4_up_plus)
+DR.Qs.minus.list <- list(DR.Q1_up_minus, DR.Q2_up_minus, DR.Q3_up_minus, DR.Q4_up_minus)
+DR.Qs.plus.down.list <- list(DR.Q1_down_plus, DR.Q2_down_plus, DR.Q3_down_plus, DR.Q4_down_plus)
+DR.Qs.minus.down.list <- list(DR.Q1_down_minus, DR.Q2_down_minus, DR.Q3_down_minus, DR.Q4_down_minus)
+DR.window_len = 2000
+
+DR.Qs.total <- get_total_Qs(DR.Qs.plus.up.list, DR.Qs.minus.list, DR.Qs.plus.down.list, DR.Qs.minus.down.list, DR.window_len)
+
+
+ggplot(DR.Qs.total)+
+  geom_line(aes(x=Position,y=Enrrichment, colour=Q)) +
+  xlim(c(-200,200)) +
+  facet_grid( . ~ exon_pos ) +
+  theme(text = element_text(size=15))+
+  theme_bw()
+ 
+  
+  
+
+```
+
+
+
+
+
+```{r}
+
+
+H_DNA.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q1.bed.H_DNA.list.out.num")
+H_DNA.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q2.bed.H_DNA.list.out.num")
+H_DNA.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q3.bed.H_DNA.list.out.num")
+H_DNA.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q4.bed.H_DNA.list.out.num")
+
+H_DNA.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q1.bed.H_DNA.list.out.num")
+H_DNA.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q2.bed.H_DNA.list.out.num")
+H_DNA.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q3.bed.H_DNA.list.out.num")
+H_DNA.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q4.bed.H_DNA.list.out.num")
+
+H_DNA.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q1.bed.H_DNA.list.out.num")
+H_DNA.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q2.bed.H_DNA.list.out.num")
+H_DNA.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q3.bed.H_DNA.list.out.num")
+H_DNA.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q4.bed.H_DNA.list.out.num")
+
+H_DNA.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q1.bed.H_DNA.list.out.num")
+H_DNA.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q2.bed.H_DNA.list.out.num")
+H_DNA.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q3.bed.H_DNA.list.out.num")
+H_DNA.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q4.bed.H_DNA.list.out.num")
+
+H_DNA.Qs.plus.up.list <- list(H_DNA.Q1_up_plus, H_DNA.Q2_up_plus, H_DNA.Q3_up_plus, H_DNA.Q4_up_plus)
+H_DNA.Qs.minus.list <- list(H_DNA.Q1_up_minus, H_DNA.Q2_up_minus, H_DNA.Q3_up_minus, H_DNA.Q4_up_minus)
+H_DNA.Qs.plus.down.list <- list(H_DNA.Q1_down_plus, H_DNA.Q2_down_plus, H_DNA.Q3_down_plus, H_DNA.Q4_down_plus)
+H_DNA.Qs.minus.down.list <- list(H_DNA.Q1_down_minus, H_DNA.Q2_down_minus, H_DNA.Q3_down_minus, H_DNA.Q4_down_minus)
+H_DNA.window_len = 2000
+
+H_DNA.Qs.total <- get_total_Qs(H_DNA.Qs.plus.up.list, H_DNA.Qs.minus.list, H_DNA.Qs.plus.down.list, H_DNA.Qs.minus.down.list, H_DNA.window_len)
+
+
+ggplot(H_DNA.Qs.total)+
+  geom_line(aes(x=Position,y=Enrrichment, colour=Q)) +
+  xlim(c(-200,200)) +
+  facet_grid( . ~ exon_pos ) +
+  theme(text = element_text(size=15)) +
+  theme_bw()
+
+```
+
+
+
+
+
+
+
+```{r}
+
+
+IR.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q1.bed.IRs.list.out.num")
+IR.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q2.bed.IRs.list.out.num")
+IR.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q3.bed.IRs.list.out.num")
+IR.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q4.bed.IRs.list.out.num")
+
+IR.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q1.bed.IRs.list.out.num")
+IR.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q2.bed.IRs.list.out.num")
+IR.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q3.bed.IRs.list.out.num")
+IR.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q4.bed.IRs.list.out.num")
+
+IR.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q1.bed.IRs.list.out.num")
+IR.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q2.bed.IRs.list.out.num")
+IR.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q3.bed.IRs.list.out.num")
+IR.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q4.bed.IRs.list.out.num")
+
+IR.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q1.bed.IRs.list.out.num")
+IR.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q2.bed.IRs.list.out.num")
+IR.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q3.bed.IRs.list.out.num")
+IR.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q4.bed.IRs.list.out.num")
+
+IR.Qs.plus.up.list <- list(IR.Q1_up_plus, IR.Q2_up_plus, IR.Q3_up_plus, IR.Q4_up_plus)
+IR.Qs.minus.list <- list(IR.Q1_up_minus, IR.Q2_up_minus, IR.Q3_up_minus, IR.Q4_up_minus)
+IR.Qs.plus.down.list <- list(IR.Q1_down_plus, IR.Q2_down_plus, IR.Q3_down_plus, IR.Q4_down_plus)
+IR.Qs.minus.down.list <- list(IR.Q1_down_minus, IR.Q2_down_minus, IR.Q3_down_minus, IR.Q4_down_minus)
+IR.window_len = 2000
+
+IR.Qs.total <- get_total_Qs(IR.Qs.plus.up.list, IR.Qs.minus.list, IR.Qs.plus.down.list, IR.Qs.minus.down.list, IR.window_len)
+
+
+ggplot(IR.Qs.total)+
+  geom_line(aes(x=Position,y=Enrrichment, colour=Q)) +
+  xlim(c(-200,200)) +
+  facet_grid( . ~ exon_pos ) +
+  theme(text = element_text(size=15)) +
+  theme_bw()
+
+
+```
+
+
+
+
+
+
+
+```{r}
+
+
+MR.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q1.bed.MRs.list.out.num")
+MR.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q2.bed.MRs.list.out.num")
+MR.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q3.bed.MRs.list.out.num")
+MR.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q4.bed.MRs.list.out.num")
+
+MR.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q1.bed.MRs.list.out.num")
+MR.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q2.bed.MRs.list.out.num")
+MR.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q3.bed.MRs.list.out.num")
+MR.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q4.bed.MRs.list.out.num")
+
+MR.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q1.bed.MRs.list.out.num")
+MR.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q2.bed.MRs.list.out.num")
+MR.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q3.bed.MRs.list.out.num")
+MR.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q4.bed.MRs.list.out.num")
+
+MR.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q1.bed.MRs.list.out.num")
+MR.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q2.bed.MRs.list.out.num")
+MR.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q3.bed.MRs.list.out.num")
+MR.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q4.bed.MRs.list.out.num")
+
+MR.Qs.plus.up.list <- list(MR.Q1_up_plus, MR.Q2_up_plus, MR.Q3_up_plus, MR.Q4_up_plus)
+MR.Qs.minus.list <- list(MR.Q1_up_minus, MR.Q2_up_minus, MR.Q3_up_minus, MR.Q4_up_minus)
+MR.Qs.plus.down.list <- list(MR.Q1_down_plus, MR.Q2_down_plus, MR.Q3_down_plus, MR.Q4_down_plus)
+MR.Qs.minus.down.list <- list(MR.Q1_down_minus, MR.Q2_down_minus, MR.Q3_down_minus, MR.Q4_down_minus)
+MR.window_len = 2000
+
+MR.Qs.total <- get_total_Qs(MR.Qs.plus.up.list, MR.Qs.minus.list, MR.Qs.plus.down.list, MR.Qs.minus.down.list, window_len)
+
+
+ggplot(MR.Qs.total)+
+  geom_line(aes(x=Position,y=Enrrichment, colour=Q)) +
+  xlim(c(-200,200)) +
+  facet_grid( . ~ exon_pos ) +
+  theme(text = element_text(size=15)) +
+  theme_bw()
+
+
+```
+
+
+
+
+
+
+
+```{r}
+
+
+STR.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q1.bed.STRs.list.out.num")
+STR.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q2.bed.STRs.list.out.num")
+STR.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q3.bed.STRs.list.out.num")
+STR.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q4.bed.STRs.list.out.num")
+
+STR.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q1.bed.STRs.list.out.num")
+STR.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q2.bed.STRs.list.out.num")
+STR.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q3.bed.STRs.list.out.num")
+STR.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q4.bed.STRs.list.out.num")
+
+STR.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q1.bed.STRs.list.out.num")
+STR.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q2.bed.STRs.list.out.num")
+STR.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q3.bed.STRs.list.out.num")
+STR.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q4.bed.STRs.list.out.num")
+
+STR.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q1.bed.STRs.list.out.num")
+STR.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q2.bed.STRs.list.out.num")
+STR.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q3.bed.STRs.list.out.num")
+STR.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q4.bed.STRs.list.out.num")
+
+STR.Qs.plus.up.list <- list(STR.Q1_up_plus, STR.Q2_up_plus, STR.Q3_up_plus, STR.Q4_up_plus)
+STR.Qs.minus.list <- list(STR.Q1_up_minus, STR.Q2_up_minus, STR.Q3_up_minus, STR.Q4_up_minus)
+STR.Qs.plus.down.list <- list(STR.Q1_down_plus, STR.Q2_down_plus, STR.Q3_down_plus, STR.Q4_down_plus)
+STR.Qs.minus.down.list <- list(STR.Q1_down_minus, STR.Q2_down_minus, STR.Q3_down_minus, STR.Q4_down_minus)
+STR.window_len = 2000
+
+STR.Qs.total <- get_total_Qs(STR.Qs.plus.up.list, STR.Qs.minus.list, STR.Qs.plus.down.list, STR.Qs.minus.down.list, STR.window_len)
+
+
+ggplot(STR.Qs.total)+
+  geom_line(aes(x=Position,y=Enrrichment, colour=Q)) +
+  xlim(c(-200,200)) +
+  facet_grid( . ~ exon_pos ) +
+  theme(text = element_text(size=15)) +
+  theme_bw()
+
+```
+
+
+
+
+```{r}
+
+
+Z_DNA.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q1.bed.Z_DNA.list.out.num")
+Z_DNA.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q2.bed.Z_DNA.list.out.num")
+Z_DNA.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q3.bed.Z_DNA.list.out.num")
+Z_DNA.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q4.bed.Z_DNA.list.out.num")
+
+Z_DNA.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q1.bed.Z_DNA.list.out.num")
+Z_DNA.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q2.bed.Z_DNA.list.out.num")
+Z_DNA.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q3.bed.Z_DNA.list.out.num")
+Z_DNA.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q4.bed.Z_DNA.list.out.num")
+
+Z_DNA.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q1.bed.Z_DNA.list.out.num")
+Z_DNA.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q2.bed.Z_DNA.list.out.num")
+Z_DNA.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q3.bed.Z_DNA.list.out.num")
+Z_DNA.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q4.bed.Z_DNA.list.out.num")
+
+Z_DNA.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q1.bed.Z_DNA.list.out.num")
+Z_DNA.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q2.bed.Z_DNA.list.out.num")
+Z_DNA.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q3.bed.Z_DNA.list.out.num")
+Z_DNA.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q4.bed.Z_DNA.list.out.num")
+
+Z_DNA.Qs.plus.up.list <- list(Z_DNA.Q1_up_plus, Z_DNA.Q2_up_plus, Z_DNA.Q3_up_plus, Z_DNA.Q4_up_plus)
+Z_DNA.Qs.minus.list <- list(Z_DNA.Q1_up_minus, Z_DNA.Q2_up_minus, Z_DNA.Q3_up_minus, Z_DNA.Q4_up_minus)
+Z_DNA.Qs.plus.down.list <- list(Z_DNA.Q1_down_plus, Z_DNA.Q2_down_plus, Z_DNA.Q3_down_plus, Z_DNA.Q4_down_plus)
+Z_DNA.Qs.minus.down.list <- list(Z_DNA.Q1_down_minus, Z_DNA.Q2_down_minus, Z_DNA.Q3_down_minus, Z_DNA.Q4_down_minus)
+Z_DNA.window_len = 2000
+
+Z_DNA.Qs.total <- get_total_Qs(Z_DNA.Qs.plus.up.list, Z_DNA.Qs.minus.list, Z_DNA.Qs.plus.down.list, Z_DNA.Qs.minus.down.list, Z_DNA.window_len)
+
+
+ggplot(Z_DNA.Qs.total)+
+  geom_line(aes(x=Position,y=Enrrichment, colour=Q)) +
+  xlim(c(-200,200)) +
+  facet_grid( . ~ exon_pos ) +
+  theme(text = element_text(size=15)) +
+  theme_bw()
+
+```
+
+
+
+
+```{r}
+
+
+APR.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q1.bed.APRs.list.out.num")
+APR.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q2.bed.APRs.list.out.num")
+APR.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q3.bed.APRs.list.out.num")
+APR.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_plus.q4.bed.APRs.list.out.num")
+
+APR.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q1.bed.APRs.list.out.num")
+APR.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q2.bed.APRs.list.out.num")
+APR.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q3.bed.APRs.list.out.num")
+APR.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_plus.q4.bed.APRs.list.out.num")
+
+APR.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q1.bed.APRs.list.out.num")
+APR.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q2.bed.APRs.list.out.num")
+APR.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q3.bed.APRs.list.out.num")
+APR.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.up_minus.q4.bed.APRs.list.out.num")
+
+APR.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q1.bed.APRs.list.out.num")
+APR.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q2.bed.APRs.list.out.num")
+APR.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q3.bed.APRs.list.out.num")
+APR.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/All_non_Bs/q1_q4/exon.down_minus.q4.bed.APRs.list.out.num")
+
+APR.Qs.plus.up.list <- list(APR.Q1_up_plus, APR.Q2_up_plus, APR.Q3_up_plus, APR.Q4_up_plus)
+APR.Qs.minus.list <- list(APR.Q1_up_minus, APR.Q2_up_minus, APR.Q3_up_minus, APR.Q4_up_minus)
+APR.Qs.plus.down.list <- list(APR.Q1_down_plus, APR.Q2_down_plus, APR.Q3_down_plus, APR.Q4_down_plus)
+APR.Qs.minus.down.list <- list(APR.Q1_down_minus, APR.Q2_down_minus, APR.Q3_down_minus, APR.Q4_down_minus)
+APR.window_len = 2000
+
+APR.Qs.total <- get_total_Qs(APR.Qs.plus.up.list, APR.Qs.minus.list, APR.Qs.plus.down.list, APR.Qs.minus.down.list, APR.window_len)
+
+
+ggplot(APR.Qs.total)+
+  geom_line(aes(x=Position,y=Enrrichment, colour=Q)) +
+  xlim(c(-200,200)) +
+  facet_grid( . ~ exon_pos ) +
+  theme(text = element_text(size=15)) +
+  theme_bw()
+
+```
+
+
+
+
+
+```{r, fig.height=10, fig.width=7}
+G4.Qs.total[, Non_B:="G4"]
+DR.Qs.total[, Non_B:="DR"]
+H_DNA.Qs.total[, Non_B:="H-DNA"]
+IR.Qs.total[, Non_B:="IR"]
+MR.Qs.total[, Non_B:="MR"]
+STR.Qs.total[, Non_B:="STR"]
+Z_DNA.Qs.total[, Non_B:="Z-DNA"]
+
+
+
+Non_B.Qs.TOTAL <- rbind(G4.Qs.total, DR.Qs.total, H_DNA.Qs.total, IR.Qs.total, MR.Qs.total, STR.Qs.total, Z_DNA.Qs.total)
+
+Non_B.Qs.TOTAL$Q <- mapvalues(Non_B.Qs.TOTAL$Q,  from =c(1:4), to =c("Q1", "Q2", "Q3", "Q4"))
+
+
+
+ggplot(Non_B.Qs.TOTAL)+
+  geom_line(aes(x=Position,y=Enrrichment, colour=Q)) +
+  xlim(c(-150,150)) +
+  facet_grid( Non_B ~ exon_pos ) +
+  labs(colour = "Splice site stregth quartile") +
+  theme_bw()  + 
+  theme(legend.position = "top", legend.direction = "horizontal")
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
+```{r}
+Non_B.Qs.TOTAL.Enrrichment_Peak <- Non_B.Qs.TOTAL[  , .(Enrrichment_Peak=max(Enrrichment)) , by= c("Non_B", "exon_pos", "Q")]
+
+write.table(Non_B.Qs.TOTAL.Enrrichment_Peak, file = "Non_B.Qs.TOTAL.Enrrichment_Peak.txt", append = FALSE, quote = FALSE, sep = "\t",
+            eol = "\n", na = "NA", dec = ".", row.names = FALSE,
+            col.names = TRUE, qmethod = c("escape", "double"),
+            fileEncoding = "")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Template - non template
+
+Template = plus_minus, minus_plus
+Non-template = minus_minus, plus_plus
+
+
+
+
+```{r}
+
+
+G4.template.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_plus.q1.bed.G4s_minus_plus.list.final.num")
+G4.template.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_plus.q2.bed.G4s_minus_plus.list.final.num")
+G4.template.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_plus.q3.bed.G4s_minus_plus.list.final.num")
+G4.template.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_plus.q4.bed.G4s_minus_plus.list.final.num")
+
+G4.template.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_minus.q1.bed.G4s_plus_minus.list.final.num")
+G4.template.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_minus.q2.bed.G4s_plus_minus.list.final.num")
+G4.template.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_minus.q3.bed.G4s_plus_minus.list.final.num")
+G4.template.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_minus.q4.bed.G4s_plus_minus.list.final.num")
+
+G4.template.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_plus.q1.bed.G4s_minus_plus.list.final.num")
+G4.template.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_plus.q2.bed.G4s_minus_plus.list.final.num")
+G4.template.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_plus.q3.bed.G4s_minus_plus.list.final.num")
+G4.template.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_plus.q4.bed.G4s_minus_plus.list.final.num")
+
+G4.template.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_minus.q1.bed.G4s_plus_minus.list.final.num")
+G4.template.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_minus.q2.bed.G4s_plus_minus.list.final.num")
+G4.template.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_minus.q3.bed.G4s_plus_minus.list.final.num")
+G4.template.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_minus.q4.bed.G4s_plus_minus.list.final.num")
+
+
+
+
+G4.non_template.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_plus.q1.bed.G4s_plus_plus.list.final.num")
+G4.non_template.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_plus.q2.bed.G4s_plus_plus.list.final.num")
+G4.non_template.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_plus.q3.bed.G4s_plus_plus.list.final.num")
+G4.non_template.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_plus.q4.bed.G4s_plus_plus.list.final.num")
+
+G4.non_template.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_minus.q1.bed.G4s_minus_minus.list.final.num")
+G4.non_template.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_minus.q2.bed.G4s_minus_minus.list.final.num")
+G4.non_template.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_minus.q3.bed.G4s_minus_minus.list.final.num")
+G4.non_template.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.up_minus.q4.bed.G4s_minus_minus.list.final.num")
+
+G4.non_template.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_plus.q1.bed.G4s_plus_plus.list.final.num")
+G4.non_template.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_plus.q2.bed.G4s_plus_plus.list.final.num")
+G4.non_template.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_plus.q3.bed.G4s_plus_plus.list.final.num")
+G4.non_template.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_plus.q4.bed.G4s_plus_plus.list.final.num")
+
+G4.non_template.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_minus.q1.bed.G4s_minus_minus.list.final.num")
+G4.non_template.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_minus.q2.bed.G4s_minus_minus.list.final.num")
+G4.non_template.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_minus.q3.bed.G4s_minus_minus.list.final.num")
+G4.non_template.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon.down_minus.q4.bed.G4s_minus_minus.list.final.num")
+
+
+```
+
+
+
+```{r}
+G4.template.Qs.plus.up.list <- list(G4.template.Q1_up_plus, G4.template.Q2_up_plus, G4.template.Q3_up_plus, G4.template.Q4_up_plus)
+G4.template.Qs.minus.list <- list(G4.template.Q1_up_minus, G4.template.Q2_up_minus, G4.template.Q3_up_minus, G4.template.Q4_up_minus)
+G4.template.Qs.plus.down.list <- list(G4.template.Q1_down_plus, G4.template.Q2_down_plus, G4.template.Q3_down_plus, G4.template.Q4_down_plus)
+G4.template.Qs.minus.down.list <- list(G4.template.Q1_down_minus, G4.template.Q2_down_minus, G4.template.Q3_down_minus, G4.template.Q4_down_minus)
+G4.template.window_len = 2000
+
+G4.template.Qs.total <- get_total_Qs(G4.template.Qs.plus.up.list, G4.template.Qs.minus.list, G4.template.Qs.plus.down.list, G4.template.Qs.minus.down.list, window_len)
+```
+
+
+
+```{r}
+G4.non_template.Qs.plus.up.list <- list(G4.non_template.Q1_up_plus, G4.non_template.Q2_up_plus, G4.non_template.Q3_up_plus, G4.non_template.Q4_up_plus)
+G4.non_template.Qs.minus.list <- list(G4.non_template.Q1_up_minus, G4.non_template.Q2_up_minus, G4.non_template.Q3_up_minus, G4.non_template.Q4_up_minus)
+G4.non_template.Qs.plus.down.list <- list(G4.non_template.Q1_down_plus, G4.non_template.Q2_down_plus, G4.non_template.Q3_down_plus, G4.non_template.Q4_down_plus)
+G4.non_template.Qs.minus.down.list <- list(G4.non_template.Q1_down_minus, G4.non_template.Q2_down_minus, G4.non_template.Q3_down_minus, G4.non_template.Q4_down_minus)
+G4.non_template.window_len = 2000
+
+G4.non_template.Qs.total <- get_total_Qs(G4.non_template.Qs.plus.up.list, G4.non_template.Qs.minus.list, G4.non_template.Qs.plus.down.list, G4.non_template.Qs.minus.down.list, window_len)
+```
+
+
+```{r}
+
+G4.template.Qs.total
+G4.non_template.Qs.total
+
+
+G4.template_non_template.Qs.total <- rbind(G4.template.Qs.total, G4.non_template.Qs.total)
+  
+half_n <- nrow(G4.template_non_template.Qs.total)/2
+G4.template_non_template.Qs.total[, Strand:=rep(c("Template", "Non-template"), each=half_n) ]
+  
+  
+  
+  
+G4.template_non_template.Qs.total$Strand <-  factor(G4.template_non_template.Qs.total$Strand, levels=c("Template", "Non-template" ))
+
+  
+```
+
+
+
+
+```{r}
+
+G4.template_non_template.Qs.total$Q <- mapvalues(G4.template_non_template.Qs.total$Q,  from =c(1:4), to =c("Q1", "Q2", "Q3", "Q4"))
+
+
+ggplot(G4.template_non_template.Qs.total)+
+  geom_line(aes(x=Position,y=Enrrichment, colour=Q)) +
+  xlim(c(-150,150)) +
+  facet_grid( Strand ~ exon_pos ) +
+  labs(colour = "Splice site stregth quartile") +
+  theme_bw()  + 
+  theme(legend.position = "top", legend.direction = "horizontal")
+
+
+
+```
+
+
+
+
+```{r}
+
+G4.template_non_template.total <- G4.template_non_template.Qs.total[ , .(Occurrences=sum(Occurrences)) , by=c("Strand", "exon_pos", "Position")]
+
+G4.template_non_template.total[ , median:=median(Occurrences) , by=c("Strand", "exon_pos")]
+
+G4.template_non_template.total[ , Enrrichment:=Occurrences/median , by=c("Strand", "exon_pos", "Position")]
+
+
+ggplot(G4.template_non_template.total)+
+  geom_line(aes(x=Position,y=Enrrichment)) +
+  xlim(c(-150,150)) +
+  facet_grid( Strand ~ exon_pos ) +
+  labs(colour = "Splice site stregth quartile") +
+  theme_bw()  + 
+  theme(legend.position = "top", legend.direction = "horizontal")
+
+
+
+```
+
+
+```{r}
+
+G4.template_non_template.total_Peak <- G4.template_non_template.total[  , .(Enrrichment_Peak=max(Enrrichment)) , by= c("Strand", "exon_pos")]
+
+
+write.table(G4.template_non_template.total_Peak, file = "G4.template_non_template.total_Peak.txt", append = FALSE, quote = FALSE, sep = "\t",
+            eol = "\n", na = "NA", dec = ".", row.names = FALSE,
+            col.names = TRUE, qmethod = c("escape", "double"),
+            fileEncoding = "")
+```
+
+
+
+```{r}
+
+
+G4.template_non_template.Qs.total.Enrrichment_Peak <- G4.template_non_template.Qs.total[  , .(Enrrichment_Peak=max(Enrrichment)) , by= c( "exon_pos", "Q", "Strand" )]
+
+write.table(G4.template_non_template.Qs.total.Enrrichment_Peak, file = "G4.template_non_template.Qs.total.Enrrichment_Peak.txt", append = FALSE, quote = FALSE, sep = "\t",
+            eol = "\n", na = "NA", dec = ".", row.names = FALSE,
+            col.names = TRUE, qmethod = c("escape", "double"),
+            fileEncoding = "")
+
+```
+
+
+## G4 RUNS
+
+
+```{r}
+
+G1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_plus.bed.Single_G_runs.list.out.num")
+G2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_plus.bed.Twice_G_runs.list.out.num")
+G3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_plus.bed.Three_G_runs.list.out.num")
+G4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_plus.bed.Four_G_runs.list.out.num")
+G5_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_plus.bed.Five_G_runs.list.out.num")
+G6_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_plus.bed.Six_G_runs.list.out.num")
+
+G1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_minus.bed.Single_G_runs.list.out.num")
+G2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_minus.bed.Twice_G_runs.list.out.num")
+G3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_minus.bed.Three_G_runs.list.out.num")
+G4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_minus.bed.Four_G_runs.list.out.num")
+G5_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_minus.bed.Five_G_runs.list.out.num")
+G6_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.up_minus.bed.Six_G_runs.list.out.num")
+
+G1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_plus.bed.Single_G_runs.list.out.num")
+G2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_plus.bed.Twice_G_runs.list.out.num")
+G3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_plus.bed.Three_G_runs.list.out.num")
+G4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_plus.bed.Four_G_runs.list.out.num")
+G5_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_plus.bed.Five_G_runs.list.out.num")
+G6_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_plus.bed.Six_G_runs.list.out.num")
+
+G1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_minus.bed.Single_G_runs.list.out.num")
+G2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_minus.bed.Twice_G_runs.list.out.num")
+G3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_minus.bed.Three_G_runs.list.out.num")
+G4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_minus.bed.Four_G_runs.list.out.num")  #missing
+G5_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_minus.bed.Five_G_runs.list.out.num")
+G6_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/G4_runs/exon.down_minus.bed.Six_G_runs.list.out.num")
+```
+
+
+
+```{r}
+Gruns.up_plus.list <- list(G1_up_plus, G2_up_plus, G3_up_plus, G4_up_plus, G5_up_plus, G6_up_plus)
+Gruns.up_minus.list <- list(G1_up_minus, G2_up_minus, G3_up_minus, G4_up_minus, G5_up_minus, G6_up_minus)
+
+Gruns.down_plus.list <- list(G1_down_plus, G2_down_plus, G3_down_plus, G4_down_plus, G5_down_plus, G6_down_plus)
+Gruns.down_minus.list <- list(G1_down_minus, G2_down_minus, G3_down_minus, G4_down_minus, G5_down_minus, G6_down_minus)
+
+
+Gruns.window_len = 2000
+
+Gruns.total <- get_total_Qs(Gruns.up_plus.list, Gruns.up_minus.list, Gruns.down_plus.list, Gruns.down_minus.list, Gruns.window_len)
+
+Gruns.total[, G_run_length:=Q]
+```
+
+
+
+```{r}
+
+
+ggplot(Gruns.total)+
+  geom_line(aes(x=Position,y=Enrrichment, colour=G_run_length)) +
+  xlim(c(-100,100)) +
+  facet_grid( . ~ exon_pos ) +
+  theme(text = element_text(size=15)) +
+  theme_bw() +
+  labs(colour = "Number of consecutive G-runs") +
+  theme(legend.position = "top", legend.direction = "horizontal")
+```
+
+
+
+```{r}
+
+Gruns.total.Enrrichment_Peak <- Gruns.total[  , .(Enrrichment_Peak=max(Enrrichment)) , by= c( "exon_pos", "G_run_length")]
+
+write.table(Gruns.total.Enrrichment_Peak, file = "Gruns.total.Enrrichment_Peak.txt", append = FALSE, quote = FALSE, sep = "\t",
+            eol = "\n", na = "NA", dec = ".", row.names = FALSE,
+            col.names = TRUE, qmethod = c("escape", "double"),
+            fileEncoding = "")
+```
+
+
+
+
+
+```{r}
+VASTDB_PSI_Hsa108_hg19_PSI_tissue <- read_delim("~/Google_Drive/Results/Non_B/VASTDB_PSI_Hsa108_hg19_PSI_tissue", 
+    "\t", escape_double = FALSE, trim_ws = TRUE, col_names=FALSE)
+
+colnames(VASTDB_PSI_Hsa108_hg19_PSI_tissue) <- c("EVENT", "Tissue", "PSI")
+
+VASTDB_PSI_Hsa108_hg19_PSI_tissue <- data.table(VASTDB_PSI_Hsa108_hg19_PSI_tissue)
+
+VASTDB_PSI_Hsa108_hg19_PSI_tissue[ , `:=`( mean=mean(PSI), sd=sd(PSI))  , by=Tissue]
+
+VASTDB_PSI_Hsa108_hg19_PSI_tissue[, Z_score := (PSI-mean)/sd]
+
+
+ggplot(VASTDB_PSI_Hsa108_hg19_PSI_tissue) +
+  geom_histogram(aes( Z_score), binwidth=0.05) +
+  geom_vline(xintercept=1.3) +
+  geom_vline(xintercept=-0.95)
+
+
+hist(VASTDB_PSI_Hsa108_hg19_PSI_tissue$Z_score)
+
+
+
+
+
+```
+
+```{r}
+VASTDB_EVENTS_Hsa108_hg19 <- read_delim("~/Google_Drive/Results/Non_B/VASTDB_EVENTS_Hsa108_hg19.tab", 
+    "\t", escape_double = FALSE, trim_ws = TRUE)
+
+VASTDB_EVENTS_Hsa108_hg19 <- data.table(VASTDB_EVENTS_Hsa108_hg19)
+```
+
+
+```{r}
+
+VASTDB_EVENTS_Hsa108_hg19[ COMPLEX %in% c("S", "C1", "C2", "C3") , c("EVENT", "COMPLEX", "CO_A", "REF_CO")]
+```
+
+
+```{r}
+
+VASTDB_PSI_Hsa108_hg19 <- data.table(VASTDB_PSI_Hsa108_hg19)
+
+Up_regulated_exons <- VASTDB_PSI_Hsa108_hg19_PSI_tissue[Z_score >= 1.3  , c("EVENT", "Tissue", "Z_score") ]
+Up_regulated_exons <- merge(Up_regulated_exons, VASTDB_PSI_Hsa108_hg19[ , c("EVENT", "COORD")], by="EVENT")
+
+Up_regulated_exons <- merge(Up_regulated_exons, VASTDB_EVENTS_Hsa108_hg19[ COMPLEX %in% c("S", "C1", "C2", "C3") , c("EVENT", "COMPLEX", "CO_A", "REF_CO")], by="EVENT")
+
+Down_regulated_exons <-  VASTDB_PSI_Hsa108_hg19_PSI_tissue[Z_score <= -0.95  , c("EVENT", "Tissue", "Z_score") ]
+Down_regulated_exons <- merge(Down_regulated_exons, VASTDB_PSI_Hsa108_hg19[ , c("EVENT", "COORD")], by="EVENT")
+
+Down_regulated_exons <-  merge(Down_regulated_exons, VASTDB_EVENTS_Hsa108_hg19[ COMPLEX %in% c("S", "C1", "C2", "C3") , c("EVENT", "COMPLEX", "CO_A", "REF_CO")], by="EVENT")
+
+
+write.table(Up_regulated_exons, file = "Up_regulated_exons.txt", append = FALSE, quote = FALSE, sep = "\t",
+            eol = "\n", na = "NA", dec = ".", row.names = FALSE,
+            col.names = FALSE, qmethod = c("escape", "double"),
+            fileEncoding = "")
+
+
+write.table(Down_regulated_exons, file = "Down_regulated_exons.txt", append = FALSE, quote = FALSE, sep = "\t",
+            eol = "\n", na = "NA", dec = ".", row.names = FALSE,
+            col.names = FALSE, qmethod = c("escape", "double"),
+            fileEncoding = "")
+```
+
+
+```{r}
+
+Up_regulated_exons <- VASTDB_PSI_Hsa108_hg19_PSI_tissue[Z_score >= 1.3  , c("EVENT", "Tissue", "Z_score") ]
+
+```
+
+
+
+# RNA
+
+
+```{r}
+library(data.table)
+library(readr)
+all_exons_G4s_upstream_and_downstream <- data.table(read_delim("~/Google_Drive/Results/Non_B/RNA_seq/all_exons_G4s_upstream_and_downstream.txt", 
+    "\t", escape_double = FALSE, col_names = FALSE, 
+    trim_ws = TRUE))
+
+colnames(all_exons_G4s_upstream_and_downstream) <- c("chrom", "start", "end", "strand", "upstream_G4", "downstream_G4") 
+
+SH_untreated_SH_PDS <- data.table(read_delim("~/Google_Drive/Results/Non_B/RNA_seq/SH_untreated-SH_cPDS.ALL_exons.diff", 
+    "\t", escape_double = FALSE, trim_ws = TRUE))
+
+whippet_jls_exons <- data.table(read_delim("~/Google_Drive/Results/Non_B/RNA_seq/whippet.jls.exons.nodes.tab", 
+    "\t", escape_double = FALSE, trim_ws = TRUE))
+
+
+
+```
+
+
+```{r}
+SH_untreated_SH_PDS <- data.table(read_delim("~/Google_Drive/Results/Non_B/RNA_seq/SH_untreated-SH_cPDS.ALL_exons.diff", 
+    "\t", escape_double = FALSE, trim_ws = TRUE))
+```
+
+
+```{r}
+ggplot( ) +
+  geom_point(data=SH_untreated_SH_PDS, aes(DeltaPsi, Probability)) +
+  geom_point(data=SH_untreated_SH_PDS[ abs(DeltaPsi)>=0.1 &  Probability >= 0.9 , ], aes(DeltaPsi, Probability), color="red") 
+```
+
+
+
+
+
+
+
+```{r}
+all_exons_G4s_upstream_and_downstream[ , ID := paste( chrom ,paste( start+1, end , sep = "-"), strand, sep = ":") ]
+
+```
+
+
+
+
+```{r}
+
+
+
+
+SH_untreated_SH_PDS_exon <-  merge(SH_untreated_SH_PDS, whippet_jls_exons, by =c("Gene", "Node") )
+
+
+SH_untreated_SH_PDS_exon_G4 <- merge(SH_untreated_SH_PDS_exon, all_exons_G4s_upstream_and_downstream, by.x="Potential_Exon", by.y="ID")
+
+```
+
+```{r}
+SH_untreated_SH_PDS[ abs(DeltaPsi)>=0.1 &  Probability >= 0.9  , ]
+
+SH_untreated_SH_PDS[ order(-abs(DeltaPsi))  ]
+```
+
+
+
+```{r}
+
+library(ggplot2)
+
+
+
+SH_untreated_SH_PDS_exon_G4_sig <- SH_untreated_SH_PDS_exon_G4[ abs(DeltaPsi)>=0.1 &  Probability >= 0.9  , ]
+
+
+SH_untreated_SH_PDS_exon_G4_sig[order(-abs(DeltaPsi))]
+
+
+SH_untreated_SH_PDS_exon_G4_sig <- SH_untreated_SH_PDS_exon_G4[ abs(DeltaPsi)>=0.1 &  Probability >= 0.9 & Type=="CE" , ]
+
+SH_untreated_SH_PDS_exon_G4_sig[ , .(sum(upstream_G4), sum(downstream_G4))]
+
+ggplot( ) +
+  geom_point(data=SH_untreated_SH_PDS, aes(DeltaPsi, Probability)) +
+  geom_point(data=SH_untreated_SH_PDS[ abs(DeltaPsi)>=0.1 &  Probability >= 0.9 , ], aes(DeltaPsi, Probability), color="red") 
+
+  
+
+  ```
+
+
+```{r}
+
+all_exons_G4s_upstream_and_downstream
+
+```
+
+
+## Node analysis
+
+```{r}
+
+read_dist_table_by_NodeType <- function(type){ 
+
+
+X.G4.up_plus <- read_dist_table(gsub("X", type, "~/Google_Drive/Results/Non_B/Node_analysis/hg19/splicing_nodes_plus_gene_5ss_X.score.G4.bed.list.out.num"))
+X.G4.down_plus <- read_dist_table(gsub("X", type,"~/Google_Drive/Results/Non_B/Node_analysis/hg19/splicing_nodes_plus_gene_3ss_X.score.G4.bed.list.out.num"))
+
+X.G4.up_minus <- read_dist_table(gsub("X", type,"~/Google_Drive/Results/Non_B/Node_analysis/hg19/splicing_nodes_minus_gene_5ss_X.score.G4.bed.list.out.num"))
+X.G4.down_minus <- read_dist_table(gsub("X", type,"~/Google_Drive/Results/Non_B/Node_analysis/hg19/splicing_nodes_minus_gene_3ss_X.score.G4.bed.list.out.num"))
+
+X.G4.up_minus[,Position:=Position*-1]
+X.G4.down_minus[,Position:=Position*-1]
+
+X.G4.TOTAL <- plot_density(X.G4.up_plus, X.G4.down_plus, X.G4.up_minus, X.G4.down_minus)
+
+return(X.G4.TOTAL)
+
+}
+
+```
+
+
+```{r}
+CE.G4.TOTAL <-read_dist_table_by_NodeType("CE")
+AD.G4.TOTAL <-read_dist_table_by_NodeType("AD")
+AA.G4.TOTAL <-read_dist_table_by_NodeType("AA")
+RI.G4.TOTAL <-read_dist_table_by_NodeType("RI")
+TS.G4.TOTAL <-read_dist_table_by_NodeType("TS")
+TE.G4.TOTAL <-read_dist_table_by_NodeType("TE")
+AF.G4.TOTAL <-read_dist_table_by_NodeType("AF")
+AL.G4.TOTAL <-read_dist_table_by_NodeType("AL")
+NA.G4.TOTAL <-read_dist_table_by_NodeType("NA")
+```
+
+```{r}
+
+CE.G4.TOTAL
+```
+
+
+
+
+```{r fig.height=10, fig.width=7}
+
+
+
+CE.G4.TOTAL[, NodeType:="CE"]
+AD.G4.TOTAL[, NodeType:="AD"]
+AA.G4.TOTAL[, NodeType:="AA"]
+RI.G4.TOTAL[, NodeType:="RI"]
+TS.G4.TOTAL[, NodeType:="TS"]
+TE.G4.TOTAL[, NodeType:="TE"]
+AF.G4.TOTAL[, NodeType:="AF"]
+AL.G4.TOTAL[, NodeType:="AL"]
+NA.G4.TOTAL[, NodeType:="NA"]
+
+NODES.G4.TOTAL <- rbind(CE.G4.TOTAL, AD.G4.TOTAL, AA.G4.TOTAL, RI.G4.TOTAL, TS.G4.TOTAL, TE.G4.TOTAL, AF.G4.TOTAL, AL.G4.TOTAL, NA.G4.TOTAL)
+
+NODES.G4.TOTAL$NodeType <- factor( NODES.G4.TOTAL$NodeType , levels=c("TS", "AF", "AA",  "CE", "AD", "RI", "AL", "TE", "NA" ) )
+
+ggplot(NODES.G4.TOTAL)+
+    geom_line(aes(x=Position,y=Enrrichment)) +
+    xlim(c(-300,300)) +
+    facet_grid( NodeType ~ exon_pos )  +
+    theme_bw()
+  
+  
+  
+```
+
+
+
+
+```{r}
+
+
+
+read_dist_table_by_NodeType_TnT <- function(type){ 
+
+  
+path="~/Google_Drive/Results/Non_B/Node_analysis/hg19/Template_Non_Template/"
+
+X.plus.G4.up_plus <- read_dist_table(gsub("X", type, paste0( path, "splicing_nodes_plus_gene_5ss_X.score.G4s_plus.bed.list.out.num" )  ))
+X.plus.G4.down_plus <- read_dist_table(gsub("X", type, paste0( path, "splicing_nodes_plus_gene_3ss_X.score.G4s_plus.bed.list.out.num" )  ))
+
+X.plus.G4.up_minus <- read_dist_table(gsub("X", type, paste0( path, "splicing_nodes_plus_gene_5ss_X.score.G4s_minus.bed.list.out.num" )  ))
+X.plus.G4.down_minus <- read_dist_table(gsub("X", type, paste0( path, "splicing_nodes_plus_gene_3ss_X.score.G4s_minus.bed.list.out.num" )  ))
+
+
+X.minus.G4.up_plus <- read_dist_table(gsub("X", type, paste0( path, "splicing_nodes_minus_gene_5ss_X.score.G4s_plus.bed.list.out.num" )  ))
+X.minus.G4.down_plus <- read_dist_table(gsub("X", type, paste0( path, "splicing_nodes_minus_gene_3ss_X.score.G4s_plus.bed.list.out.num" )  ))
+
+X.minus.G4.up_minus <- read_dist_table(gsub("X", type, paste0( path, "splicing_nodes_minus_gene_5ss_X.score.G4s_minus.bed.list.out.num" )  ))
+X.minus.G4.down_minus <- read_dist_table(gsub("X", type, paste0( path, "splicing_nodes_minus_gene_3ss_X.score.G4s_minus.bed.list.out.num" )  ))
+
+
+X.nT.G4.up <- merge(X.plus.G4.up_plus, X.minus.G4.up_minus[,Position:=Position*-1], by="Position" )
+X.nT.G4.up[ , Occurrences :=Occurrences.x + Occurrences.y ]
+X.nT.G4.up[ , median := median(Occurrences) ]
+X.nT.G4.up[ , Enrrichment := Occurrences/median ]
+
+X.nT.G4.down <- merge(X.plus.G4.down_plus, X.minus.G4.down_minus[,Position:=Position*-1] , by="Position" )
+X.nT.G4.down[ , Occurrences :=Occurrences.x + Occurrences.y ]
+X.nT.G4.down[ , median := median(Occurrences) ]
+X.nT.G4.down[ , Enrrichment := Occurrences/median ]
+
+X.T.G4.up <- merge(X.plus.G4.up_minus, X.minus.G4.up_plus[,Position:=Position*-1] , by="Position" )
+X.T.G4.up[ , Occurrences :=Occurrences.x + Occurrences.y ]
+X.T.G4.up[ , median := median(Occurrences) ]
+X.T.G4.up[ , Enrrichment := Occurrences/median ]
+
+X.T.G4.down <- merge(X.plus.G4.down_minus, X.minus.G4.down_plus[,Position:=Position*-1], by="Position" )
+X.T.G4.down[ , Occurrences :=Occurrences.x + Occurrences.y ]
+X.T.G4.down[ , median := median(Occurrences) ]
+X.T.G4.down[ , Enrrichment := Occurrences/median ]
+
+
+X.nT.G4.up[ , `:=`(exon_pos="Upstream", Strand="Non-Template") ]
+X.nT.G4.down[ , `:=`(exon_pos="Downstream", Strand="Non-Template") ]
+X.T.G4.up[ , `:=`(exon_pos="Upstream", Strand="Template") ]
+X.T.G4.down[ , `:=`(exon_pos="Downstream", Strand="Template") ]
+
+X.G4.TOTAL <- rbind(X.nT.G4.up, X.nT.G4.down, X.T.G4.up, X.T.G4.down)
+
+
+
+return(X.G4.TOTAL)
+
+
+
+
+}
+
+```
+
+
+
+```{r}
+
+read_dist_table_by_NodeType_TnT("CE")
+
+```
+
+
+
+```{r}
+CE.G4.TnT.TOTAL <-read_dist_table_by_NodeType_TnT("CE")
+AD.G4.TnT.TOTAL <-read_dist_table_by_NodeType_TnT("AD")
+AA.G4.TnT.TOTAL <-read_dist_table_by_NodeType_TnT("AA")
+RI.G4.TnT.TOTAL <-read_dist_table_by_NodeType_TnT("RI")
+TS.G4.TnT.TOTAL <-read_dist_table_by_NodeType_TnT("TS")
+TE.G4.TnT.TOTAL <-read_dist_table_by_NodeType_TnT("TE")
+AF.G4.TnT.TOTAL <-read_dist_table_by_NodeType_TnT("AF")
+AL.G4.TnT.TOTAL <-read_dist_table_by_NodeType_TnT("AL")
+NA.G4.TnT.TOTAL <-read_dist_table_by_NodeType_TnT("NA")
+
+
+CE.G4.TnT.TOTAL[, NodeType:="CE"]
+AD.G4.TnT.TOTAL[, NodeType:="AD"]
+AA.G4.TnT.TOTAL[, NodeType:="AA"]
+RI.G4.TnT.TOTAL[, NodeType:="RI"]
+TS.G4.TnT.TOTAL[, NodeType:="TS"]
+TE.G4.TnT.TOTAL[, NodeType:="TE"]
+AF.G4.TnT.TOTAL[, NodeType:="AF"]
+AL.G4.TnT.TOTAL[, NodeType:="AL"]
+NA.G4.TnT.TOTAL[, NodeType:="NA"]
+
+NODES.G4.TnT.TOTAL <- rbind(CE.G4.TnT.TOTAL, AD.G4.TnT.TOTAL, AA.G4.TnT.TOTAL, RI.G4.TnT.TOTAL, TS.G4.TnT.TOTAL, TE.G4.TnT.TOTAL, AF.G4.TnT.TOTAL, AL.G4.TnT.TOTAL, NA.G4.TnT.TOTAL)
+
+NODES.G4.TnT.TOTAL$NodeType <- factor( NODES.G4.TnT.TOTAL$NodeType , levels=c("TS", "AF", "AA",  "CE", "AD", "RI", "AL", "TE", "NA" ) )
+
+NODES.G4.TnT.TOTAL$exon_pos = factor(NODES.G4.TnT.TOTAL$exon_pos, levels=c("Upstream", "Downstream") )
+
+```
+
+
+
+```{r fig.height=7, fig.width=5}
+
+ggplot(NODES.G4.TnT.TOTAL)+
+  geom_line(aes(x=Position,y=Enrrichment, color=Strand)) +
+  xlim(c(-500,500)) +
+  facet_grid( NodeType ~ exon_pos ) +
+  theme(panel.margin=unit(0.5, "cm"), text = element_text(size=15)) +
+  labs(colour = "Strand") +
+  theme_bw()  + 
+  theme(legend.position = "top", legend.direction = "horizontal")
+
+
+
+```
+
+
+```{r}
+
+NODES.G4.TnT.TOTAL.Enrrichment_Peak <- NODES.G4.TnT.TOTAL[  , .(Enrrichment_Peak=max(Enrrichment)) , by= c( "exon_pos", "NodeType", "Strand" )]
+
+write.table(NODES.G4.TnT.TOTAL.Enrrichment_Peak, file = "NODES.G4.TnT.TOTAL.Enrrichment_Peak.txt", append = FALSE, quote = FALSE, sep = "\t",
+            eol = "\n", na = "NA", dec = ".", row.names = FALSE,
+            col.names = TRUE, qmethod = c("escape", "double"),
+            fileEncoding = "")
+
+```
+
+
+```{r fig.height=10, fig.width=7}
+
+
+
+
+CE.G4.TOTAL[, NodeType:="CE"]
+AD.G4.TOTAL[, NodeType:="AD"]
+AA.G4.TOTAL[, NodeType:="AA"]
+RI.G4.TOTAL[, NodeType:="RI"]
+TS.G4.TOTAL[, NodeType:="TS"]
+TE.G4.TOTAL[, NodeType:="TE"]
+AF.G4.TOTAL[, NodeType:="AF"]
+AL.G4.TOTAL[, NodeType:="AL"]
+NA.G4.TOTAL[, NodeType:="NA"]
+
+NODES.G4.TOTAL$NodeType <- factor( NODES.G4.TOTAL$NodeType , levels=c("TS", "AF", "AA",  "CE", "AD", "RI", "AL", "TE", "NA" ) )
+
+ggplot(NODES.G4.TOTAL)+
+    geom_line(aes(x=Position,y=Enrrichment)) +
+    xlim(c(-300,300)) +
+    facet_grid( NodeType ~ exon_pos )  
+  
+  
+  
+```
+
+
+
+
+
+
+
+
+```{r}
+
+
+G4.template.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_plus_q1_G4_minus.list.out.num")
+G4.template.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_plus.q2.G4_minus.list.out.num")
+G4.template.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_plus_q3_G4_minus.list.out.num")
+G4.template.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_plus_q4_G4_minus.list.out.num")
+
+G4.template.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_minus_q1_G4_plus.list.out.num")
+G4.template.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_minus.q2.G4_plus.list.out.num")
+G4.template.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_minus_q3_G4_plus.list.out.num")
+G4.template.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_minus_q4_G4_plus.list.out.num")
+
+G4.template.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_plus_q1_G4_minus.list.out.num")
+G4.template.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_plus.q2.G4_minus.list.out.num")
+G4.template.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_plus_q3_G4_minus.list.out.num")
+G4.template.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_plus_q4_G4_minus.list.out.num")
+
+G4.template.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_minus_q1_G4_plus.list.out.num")
+G4.template.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_minus.q2.G4_plus.list.out.num")
+G4.template.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_minus_q3_G4_plus.list.out.num")
+G4.template.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_minus_q4_G4_plus.list.out.num")
+
+
+
+
+G4.non_template.Q1_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_plus_q1_G4_plus.list.out.num")
+G4.non_template.Q2_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_plus.q2.G4_plus.list.out.num")
+G4.non_template.Q3_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_plus_q3_G4_plus.list.out.num")
+G4.non_template.Q4_up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_plus_q4_G4_plus.list.out.num")
+
+G4.non_template.Q1_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_minus_q1_G4_minus.list.out.num")
+G4.non_template.Q2_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_minus.q2.G4_minus.list.out.num")
+G4.non_template.Q3_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_minus_q3_G4_minus.list.out.num")
+G4.non_template.Q4_up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_up_minus_q4_G4_minus.list.out.num")
+
+G4.non_template.Q1_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_plus_q1_G4_plus.list.out.num")
+G4.non_template.Q2_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_plus.q2.G4_plus.list.out.num")
+G4.non_template.Q3_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_plus_q3_G4_plus.list.out.num")
+G4.non_template.Q4_down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_plus_q4_G4_plus.list.out.num")
+
+G4.non_template.Q1_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_minus_q1_G4_minus.list.out.num")
+G4.non_template.Q2_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_minus_q2_G4_minus.list.out.num")
+G4.non_template.Q3_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_minus_q3_G4_minus.list.out.num")
+G4.non_template.Q4_down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/template_non_template/exon_down_minus_q4_G4_minus.list.out.num")
+
+
+```
+
+
+
+```{r}
+G4.template.Qs.plus.up.list <- list(G4.template.Q1_up_plus, G4.template.Q2_up_plus, G4.template.Q3_up_plus, G4.template.Q4_up_plus)
+G4.template.Qs.minus.list <- list(G4.template.Q1_up_minus, G4.template.Q2_up_minus, G4.template.Q3_up_minus, G4.template.Q4_up_minus)
+G4.template.Qs.plus.down.list <- list(G4.template.Q1_down_plus, G4.template.Q2_down_plus, G4.template.Q3_down_plus, G4.template.Q4_down_plus)
+G4.template.Qs.minus.down.list <- list(G4.template.Q1_down_minus, G4.template.Q2_down_minus, G4.template.Q3_down_minus, G4.template.Q4_down_minus)
+G4.template.window_len = 2000
+
+G4.template.Qs.total <- get_total_Qs(G4.template.Qs.plus.up.list, G4.template.Qs.minus.list, G4.template.Qs.plus.down.list, G4.template.Qs.minus.down.list, window_len)
+```
+
+
+
+```{r}
+G4.non_template.Qs.plus.up.list <- list(G4.non_template.Q1_up_plus, G4.non_template.Q2_up_plus, G4.non_template.Q3_up_plus, G4.non_template.Q4_up_plus)
+G4.non_template.Qs.minus.list <- list(G4.non_template.Q1_up_minus, G4.non_template.Q2_up_minus, G4.non_template.Q3_up_minus, G4.non_template.Q4_up_minus)
+G4.non_template.Qs.plus.down.list <- list(G4.non_template.Q1_down_plus, G4.non_template.Q2_down_plus, G4.non_template.Q3_down_plus, G4.non_template.Q4_down_plus)
+G4.non_template.Qs.minus.down.list <- list(G4.non_template.Q1_down_minus, G4.non_template.Q2_down_minus, G4.non_template.Q3_down_minus, G4.non_template.Q4_down_minus)
+G4.non_template.window_len = 2000
+
+G4.non_template.Qs.total <- get_total_Qs(G4.non_template.Qs.plus.up.list, G4.non_template.Qs.minus.list, G4.non_template.Qs.plus.down.list, G4.non_template.Qs.minus.down.list, window_len)
+```
+
+
+
+
+```{r}
+for (i in c("TAIR10", "")){
+  
+  print(i)
+}
+
+```
+
+## G4 evolution
+
+
+
+
+
+
+```{r}
+
+susScr11.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/susScr11.exon.up_plus.bed.score.susScr11.txt..list.out.num")
+susScr11.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/susScr11.exon.down_plus.bed.score.susScr11.txt..list.out.num")
+susScr11.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/susScr11.exon.up_minus.bed.score.susScr11.txt..list.out.num")
+susScr11.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/susScr11.exon.down_minus.bed.score.susScr11.txt..list.out.num")
+susScr11.up_minus[,Position:=Position*-1]
+susScr11.down_minus[,Position:=Position*-1]
+
+susScr11.TOTAL <- plot_density(susScr11.up_plus, susScr11.up_minus, susScr11.down_plus, susScr11.down_minus)
+
+
+```
+
+
+
+
+
+```{r}
+
+TAIR10.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/TAIR10.exon.up_plus.bed.score.TAIR10.txt..list.out.num")
+TAIR10.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/TAIR10.exon.down_plus.bed.score.TAIR10.txt..list.out.num")
+TAIR10.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/TAIR10.exon.up_minus.bed.score.TAIR10.txt..list.out.num")
+TAIR10.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/TAIR10.exon.down_minus.bed.score.TAIR10.txt..list.out.num")
+TAIR10.up_minus[,Position:=Position*-1]
+TAIR10.down_minus[,Position:=Position*-1]
+
+TAIR10.TOTAL <- plot_density(TAIR10.up_plus, TAIR10.up_minus, TAIR10.down_plus, TAIR10.down_minus)
+
+
+```
+
+
+
+
+
+
+```{r}
+
+anoCar2.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/anoCar2.exon.up_plus.bed.score.anoCar2.txt..list.out.num")
+anoCar2.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/anoCar2.exon.down_plus.bed.score.anoCar2.txt..list.out.num")
+anoCar2.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/anoCar2.exon.up_minus.bed.score.anoCar2.txt..list.out.num")
+anoCar2.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/anoCar2.exon.down_minus.bed.score.anoCar2.txt..list.out.num")
+anoCar2.up_minus[,Position:=Position*-1]
+anoCar2.down_minus[,Position:=Position*-1]
+
+anoCar2.TOTAL <- plot_density(anoCar2.up_plus, anoCar2.up_minus, anoCar2.down_plus, anoCar2.down_minus)
+
+
+```
+
+
+
+```{r}
+
+xenTro9.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/xenTro9.exon.up_plus.bed.score.xenTro9.txt..list.out.num")
+xenTro9.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/xenTro9.exon.down_plus.bed.score.xenTro9.txt..list.out.num")
+xenTro9.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/xenTro9.exon.up_minus.bed.score.xenTro9.txt..list.out.num")
+xenTro9.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/xenTro9.exon.down_minus.bed.score.xenTro9.txt..list.out.num")
+xenTro9.up_minus[,Position:=Position*-1]
+xenTro9.down_minus[,Position:=Position*-1]
+
+xenTro9.TOTAL <- plot_density(xenTro9.up_plus, xenTro9.up_minus, xenTro9.down_plus, xenTro9.down_minus)
+
+
+```
+
+
+
+
+```{r}
+
+ce10.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/ce10.exon.up_plus.bed.score.ce10.txt..list.out.num")
+ce10.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/ce10.exon.down_plus.bed.score.ce10.txt..list.out.num")
+ce10.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/ce10.exon.up_minus.bed.score.ce10.txt..list.out.num")
+ce10.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/ce10.exon.down_minus.bed.score.ce10.txt..list.out.num")
+ce10.up_minus[,Position:=Position*-1]
+ce10.down_minus[,Position:=Position*-1]
+
+ce10.TOTAL <- plot_density(ce10.up_plus, ce10.up_minus, ce10.down_plus, ce10.down_minus)
+
+
+```
+
+
+```{r}
+
+danRer11.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/danRer11.exon.up_plus.bed.score.danRer11.txt..list.out.num")
+danRer11.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/danRer11.exon.down_plus.bed.score.danRer11.txt..list.out.num")
+danRer11.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/danRer11.exon.up_minus.bed.score.danRer11.txt..list.out.num")
+danRer11.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/danRer11.exon.down_minus.bed.score.danRer11.txt..list.out.num")
+danRer11.up_minus[,Position:=Position*-1]
+danRer11.down_minus[,Position:=Position*-1]
+
+danRer11.TOTAL <- plot_density(danRer11.up_plus, danRer11.up_minus, danRer11.down_plus, danRer11.down_minus)
+
+
+```
+
+```{r}
+
+mm10.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/mm10.exon.up_plus.bed.score.mm10.txt..list.out.num")
+mm10.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/mm10.exon.down_plus.bed.score.mm10.txt..list.out.num")
+mm10.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/mm10.exon.up_minus.bed.score.mm10.txt..list.out.num")
+mm10.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/mm10.exon.down_minus.bed.score.mm10.txt..list.out.num")
+mm10.up_minus[,Position:=Position*-1]
+mm10.down_minus[,Position:=Position*-1]
+
+mm10.TOTAL <- plot_density(mm10.up_plus, mm10.up_minus, mm10.down_plus, mm10.down_minus)
+
+
+```
+
+
+```{r}
+
+hg19.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/hg19.exon.up_plus.bed.score.hg19.txt..list.out.num")
+hg19.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/hg19.exon.down_plus.bed.score.hg19.txt..list.out.num")
+hg19.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/hg19.exon.up_minus.bed.score.hg19.txt..list.out.num")
+hg19.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/hg19.exon.down_minus.bed.score.hg19.txt..list.out.num")
+hg19.up_minus[,Position:=Position*-1]
+hg19.down_minus[,Position:=Position*-1]
+
+hg19.TOTAL <- plot_density(hg19.up_plus, hg19.up_minus, hg19.down_plus, hg19.down_minus)
+
+
+```
+
+
+
+
+```{r}
+
+dm6.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/dm6.exon.up_plus.bed.score.dm6.txt..list.out.num")
+dm6.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/dm6.exon.down_plus.bed.score.dm6.txt..list.out.num")
+dm6.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/dm6.exon.up_minus.bed.score.dm6.txt..list.out.num")
+dm6.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/dm6.exon.down_minus.bed.score.dm6.txt..list.out.num")
+dm6.up_minus[,Position:=Position*-1]
+dm6.down_minus[,Position:=Position*-1]
+
+dm6.TOTAL <- plot_density(dm6.up_plus, dm6.up_minus, dm6.down_plus, dm6.down_minus)
+
+
+```
+
+
+
+```{r}
+
+galGal5.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/galGal5.exon.up_plus.bed.score.galGal5.txt..list.out.num")
+galGal5.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/galGal5.exon.down_plus.bed.score.galGal5.txt..list.out.num")
+galGal5.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/galGal5.exon.up_minus.bed.score.galGal5.txt..list.out.num")
+galGal5.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/galGal5.exon.down_minus.bed.score.galGal5.txt..list.out.num")
+galGal5.up_minus[,Position:=Position*-1]
+galGal5.down_minus[,Position:=Position*-1]
+
+galGal5.TOTAL <- plot_density(galGal5.up_plus, galGal5.up_minus, galGal5.down_plus, galGal5.down_minus)
+
+
+```
+
+
+
+
+
+```{r}
+
+sacCer.up_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/sacCer3.exon.up_plus.bed.score.sacCer3.txt..list.out.num")
+sacCer.down_plus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/sacCer3.exon.down_plus.bed.score.sacCer3.txt..list.out.num")
+sacCer.up_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/sacCer3.exon.up_minus.bed.score.sacCer3.txt..list.out.num")
+sacCer.down_minus <- read_dist_table("~/Google_Drive/Results/Non_B/Evolution/Num/sacCer3.exon.down_minus.bed.score.sacCer3.txt..list.out.num")
+sacCer.up_minus[,Position:=Position*-1]
+sacCer.down_minus[,Position:=Position*-1]
+
+sacCer.TOTAL <- plot_density(sacCer.up_plus, sacCer.up_minus, sacCer.down_plus, sacCer.down_minus)
+
+
+```
+
+
+
+```{r }
+
+
+
+ce10.TOTAL[, species:="C. elegans"] 
+hg19.TOTAL[, species:="H. sapiens"] 
+mm10.TOTAL[, species:="M. musculus"]
+danRer11.TOTAL[, species:="D. rerio"] 
+dm6.TOTAL[, species:="D. melanogaster"]
+galGal5.TOTAL[, species:="G. gallus"]
+sacCer.TOTAL[, species:="S. cerevisiae"]
+
+
+xenTro9.TOTAL[ , species:="X. tropicalis" ]
+anoCar2.TOTAL[  , species:="A. carolinensis" ]
+TAIR10.TOTAL[  , species:="A. thaliana" ]
+susScr11.TOTAL[ , species:="S. scrofa"]
+
+All.species.TOTAL <- rbind(hg19.TOTAL, mm10.TOTAL, galGal5.TOTAL, danRer11.TOTAL, anoCar2.TOTAL, xenTro9.TOTAL,  susScr11.TOTAL  )
+
+
+ggplot(All.species.TOTAL)+
+    geom_line(aes(x=Position,y=Enrrichment, color=species)) +
+    xlim(c(-300,300)) +
+    ggtitle( "Vertebrates") +
+    facet_grid( . ~ exon_pos ) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme_bw()
+
+```
+
+
+```{r}
+
+All.species.TOTAL <- rbind(ce10.TOTAL, dm6.TOTAL, TAIR10.TOTAL  )
+
+
+
+ggplot(All.species.TOTAL)+
+    geom_line(aes(x=Position,y=Enrrichment, color=species)) +
+    xlim(c(-300,300)) +
+    ggtitle( "Non-vertebrates") +
+    facet_grid( . ~ exon_pos ) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme_bw()
+```
+
+
+
+
+```{r}
+
+
+intron_size_upstream_non_template  <- rbind(fread('/Users/gp7/Google_Drive/Results/Non_B/Intron_size/Introns.hg19_upstream_100nt_window.bed.plus_strand_genome.plus_G4s'),  
+ fread('/Users/gp7/Google_Drive/Results/Non_B/Intron_size/Introns.hg19_upstream_100nt_window.bed.minus_strand_genome.minus_G4s'))
+
+intron_size_downstream_non_template  <- rbind(fread('/Users/gp7/Google_Drive/Results/Non_B/Intron_size/Introns.hg19_downstream_100nt_window.bed.plus_strand_genome.plus_G4s'),  
+ fread('/Users/gp7/Google_Drive/Results/Non_B/Intron_size/Introns.hg19_downstream_100nt_window.bed.minus_strand_genome.minus_G4s'))
+
+
+intron_size_upstream_template  <- rbind(fread('/Users/gp7/Google_Drive/Results/Non_B/Intron_size/Introns.hg19_upstream_100nt_window.bed.plus_strand_genome.minus_G4s'),  
+ fread('/Users/gp7/Google_Drive/Results/Non_B/Intron_size/Introns.hg19_upstream_100nt_window.bed.minus_strand_genome.plus_G4s'))
+
+intron_size_downstream_template  <- rbind(fread('/Users/gp7/Google_Drive/Results/Non_B/Intron_size/Introns.hg19_downstream_100nt_window.bed.minus_strand_genome.plus_G4s'),  
+ fread('/Users/gp7/Google_Drive/Results/Non_B/Intron_size/Introns.hg19_downstream_100nt_window.bed.plus_strand_genome.minus_G4s'))
+
+
+intron_size_upstream_non_template[ , `:=`(exon_pos="upstream", strand="non_template") ]
+intron_size_downstream_non_template[ , `:=`(exon_pos="downstream", strand="non_template") ]
+intron_size_upstream_template[ , `:=`(exon_pos="upstream", strand="template") ]
+intron_size_downstream_template[ , `:=`(exon_pos="downstream", strand="template") ]
+
+intron_size_TOTAL <- rbind(intron_size_upstream_non_template, intron_size_downstream_non_template, intron_size_upstream_template, intron_size_downstream_template )
+
+colnames(intron_size_TOTAL) <- c("chrom", "start", "end", "strand", "intron_number", "intron_size", "Transcript", "G4", "exon_pos", "Strand"  )
+
+
+```
+
+
+
+```{r}
+
+ggplot(data=intron_size_TOTAL) +
+  geom_boxplot( aes(x=Strand, y=log(intron_size) ) ) +
+  facet_grid( exon_pos ~  G4>0 ) +
+  theme_bw()
+
+```
+
+
+
+```{r, fig.height=6, fig.width=12}
+KCL_human_downstream <- fread("./KCL/hg19_control_4hrs_KCL.diff_downstream.bed.G4s"  )
+
+colnames(KCL_human_downstream) <- c("chrom", "start", "end", "Gene", "Node", "Coord", "Strand", "Type", "Psi_A", "Psi_B", "DeltaPsi", "Probability", "Complexity", "Entropy", "G4")
+
+KCL_human_downstream[, G4_bol:=G4>=1]
+
+
+ggplot() +
+  geom_point(data=KCL_human_downstream, aes(x=DeltaPsi, y=Probability), alpha=0.3, size=1) +
+  geom_hline(yintercept=0.90, linetype="dashed", size=1, colour="red") +
+  facet_grid( . ~ G4_bol  ) +
+  theme_bw()
+
+  
+  
+```
+
+
+```{r, fig.height=6, fig.width=12}
+
+KCL_human_upstream <- fread("./KCL/hg19_control_4hrs_KCL.diff_upstream.bed.G4s"  )
+
+
+colnames(KCL_human_upstream) <- c("chrom", "start", "end", "Gene", "Node", "Coord", "Strand", "Type", "Psi_A", "Psi_B", "DeltaPsi", "Probability", "Complexity", "Entropy", "G4")
+
+KCL_human_upstream[, G4_bol:=G4>=1]
+
+
+ggplot() +
+  geom_point(data=KCL_human_upstream, aes(x=DeltaPsi, y=Probability), alpha=0.3, size=1) +
+  geom_hline(yintercept=0.90, linetype="dashed", size=1, colour="red") +
+  facet_grid( . ~ G4_bol  ) +
+  theme_bw()
+
+
+```
+
+
+```{r}
+
+nrow(KCL_human_upstream)
+
+
+
+```
+
+
+
+
+```{r}
+nrow(KCL_human_upstream[ Probability > 0.9 &  abs(DeltaPsi)>0.1,  ])
+
+```
+
+
+
+
+```{r}
+nrow(KCL_human_upstream[G4>=1,])
+```
+
+
+```{r}
+nrow(KCL_human_upstream[ Probability > 0.9 &  abs(DeltaPsi)>0.1 & G4>=1,  ])
+
+```
+
+
+
+
+```{r}
+discretize(KCL_human_downstream$Probability)
+```
+
+
+```{r}
+KCL_human_upstream
+```
+
+
+
+```{r}
+KCL_human_downstream
+```
+
+
+```{r, fig.height=6, fig.width=12}
+KCL_human <-  merge(KCL_human_upstream[, c("Coord", "DeltaPsi", "Probability", "G4")], KCL_human_downstream[ , c("Coord", "DeltaPsi", "Probability", "G4")], by=c("Coord", "DeltaPsi", "Probability") )
+
+KCL_human[(G4.x>0 | G4.y>0 ), G4_bol:="With G-quadruplex"]
+KCL_human[(G4.x==0 & G4.y==0 ), G4_bol:="Without G-quadruplex"]
+
+KCL_human$G4_bol <- factor(KCL_human$G4_bol, levels=c("Without G-quadruplex", "With G-quadruplex") )
+
+
+ggplot() +
+  geom_point(data=KCL_human, aes(x=DeltaPsi, y=Probability), alpha=0.2, size=1) +
+  geom_hline(yintercept=0.90, linetype="dashed", size=1, colour="red") +
+  facet_grid( . ~ G4_bol  ) +
+  theme_bw()
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+
+{r, fig.height=10, fig.width=7}
+G4.TOTAL[, Non_B:="G4"]
+DR.TOTAL[, Non_B:="DR"]
+H_DNA.TOTAL[, Non_B:="H_DNA"]
+IR.TOTAL[, Non_B:="IR"]
+MR.TOTAL[, Non_B:="MR"]
+STR.TOTAL[, Non_B:="STR"]
+Z_DNA.TOTAL[, Non_B:="Z_DNA"]
+
+Non_B.TOTAL <- rbind(G4.TOTAL, DR.TOTAL, H_DNA.TOTAL, IR.TOTAL, MR.TOTAL, STR.TOTAL, Z_DNA.TOTAL)
+
+ggplot(Non_B.TOTAL)+
+    geom_line(aes(x=Position,y=Enrrichment)) +
+    xlim(c(-300,300)) +
+    facet_grid( Non_B ~ exon_pos )
+
+```
+```
+
+
+```{r}
+Introns_hg19_downstream_100nt_window_bed_intersect_c <- read_delim("~/Google_Drive/Results/Non_B/Introns.hg19_downstream_100nt_window.bed.intersect_c.G4s", 
+    "\t", escape_double = FALSE, col_names = FALSE, 
+    trim_ws = TRUE)
+```
+
+
+```{r}
+
+read_delim("~/Google_Drive/Results/Non_B/VASTDB_PSI_Hsa108_hg19.tab", 
+    "\t", escape_double = FALSE, trim_ws = TRUE)
+
+intron_size_downstream_template 
+
+rbind(fread('/Users/gp7/Google_Drive/Results/Non_B/Intron_size/Introns.hg19_downstream_100nt_window.bed.plus_strand_genome.plus_G4s'),  
+ fread('/Users/gp7/Google_Drive/Results/Non_B/Intron_size/Introns.hg19_downstream_100nt_window.bed.minus_strand_genome.minus_G4s'))
+
+```
+
+
+```{r}
+"as"
+```
+
+
+
