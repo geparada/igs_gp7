@@ -150,9 +150,15 @@ def main(bed12, GT_AG_U2_5, GT_AG_U2_3):
 		
 		intron_len_up, intron_len_down = intron_len
 		
-		U2_E5, U2_E3 = U2Score(chrom, strand, estart, eend, U2_GTAG_3, U2_GTAG_5, U2_GTAG_3_max_score, U2_GTAG_5_max_score)
+		try:
+		
+			U2_E5, U2_E3 = U2Score(chrom, strand, estart, eend, U2_GTAG_3, U2_GTAG_5, U2_GTAG_3_max_score, U2_GTAG_5_max_score)
 
-		print chrom, strand, estart, eend, U2_E5, U2_E3, intron_len_up, intron_len_down
+			print chrom, strand, estart, eend, U2_E5, U2_E3, intron_len_up, intron_len_down
+		
+		except KeyError:
+			
+			pass
 
 	
   
