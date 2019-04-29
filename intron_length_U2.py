@@ -131,7 +131,7 @@ def main(exon_bed, GT_AG_U2_5, GT_AG_U2_3):
 			istart_down = start + q2 + b2
 			iend_down = start + q3
 			
-			exon = (chrom , estart, eend)
+			exon = (chrom , strand, estart, eend)
 			intron_up = (chrom,  istart_up, iend_up)
 			intron_down = (chrom,  istart_down, iend_down)
 			
@@ -144,17 +144,16 @@ def main(exon_bed, GT_AG_U2_5, GT_AG_U2_3):
 				exon_introns[exon] = (iend_down-istart_down, iend_up-istart_up)
 			
 
-	for row in csv.reader(open(exon_bed), delimiter="\t"):
+	for exon, intron_len in exon_introns.items():
 		
-		chrom, start, end, name, cero, strand = row
+		chrom , strand, estart, eend = exon
 		
-		estart, eend = map(int, name.split("_")[-2:])
+		intron_len_up, intron_len_down = intron_len
 		
 		U2_E5, U2_E3 = U2Score(chrom, strand, estart, eend, U2_GTAG_3, U2_GTAG_5, U2_GTAG_3_max_score, U2_GTAG_5_max_score)
 
-		print name, U2_E5, U2_E3
+		print name, U2_E5, U2_E3, intron_len_up, intron_len_down
 
-	
 	
   
 if __name__ == '__main__':
