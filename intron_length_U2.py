@@ -92,7 +92,7 @@ def main(exon_bed, GT_AG_U2_5, GT_AG_U2_3):
 	
 	with open(GT_AG_U2_5) as U2_GTAG_5_file, open(GT_AG_U2_3) as U2_GTAG_3_file:
 
-
+		
 		U2_GTAG_5 = PWM_to_dict(U2_GTAG_5_file)
 		U2_GTAG_3 = PWM_to_dict(U2_GTAG_3_file)
 
@@ -106,6 +106,44 @@ def main(exon_bed, GT_AG_U2_5, GT_AG_U2_3):
 			U2_GTAG_3_max_score += max(U2_GTAG_3['A'][index], U2_GTAG_3['C'][index], U2_GTAG_3['T'][index], U2_GTAG_3['G'][index])
 
 	
+	exon_introns = dict()
+	
+	for row in csv.reader(open(bed12), delimiter = '\t'):
+
+
+		qstarts = list(map(int, row[11].strip(",").split(",")))
+		blocksizes = list(map(int, row[10].strip(",").split(",")))
+
+		start = int(row[1])
+		strand = row[5]
+		bn = int(row[9])
+		chrom = row[0]
+		qstart = 0
+
+		for q1, q2, q3, b1, b2 in zip(qstarts, qstarts[1:], qstarts[2:], blocksizes, blocksizes[1:]):
+
+			istart_up = start + q1 + b1
+			iend_up = start + q2
+
+			estart = start + q2
+			eend = start + q2 + b2
+			
+			istart_down = start + q2 + b2
+			iend_down = start + q3
+			
+			exon = (chrom , estart, eend)
+			intron_up = (chrom,  istart_up, iend_up)
+			intron_down = (chrom,  istart_down, iend_down)
+			
+			if strand=="+":
+			
+				exon_introns[exon] = (iend_up-istart_up, iend_down-istart_down)
+				
+			elif strand=="-":
+				
+				exon_introns[exon] = (iend_down-istart_down, iend_up-istart_up)
+			
+
 	for row in csv.reader(open(exon_bed), delimiter="\t"):
 		
 		chrom, start, end, name, cero, strand = row
